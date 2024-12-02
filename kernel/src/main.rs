@@ -51,3 +51,16 @@ pub extern "C" fn strnlen(str: *const u8, _max_len: usize) -> usize {
         ans
     }
 }
+
+#[no_mangle]
+#[link_section = ".boot.text"]
+pub fn init_kernel(
+    ui_p_reg_start: usize,
+    ui_p_reg_end: usize,
+    pv_offset: usize,
+    v_entry: usize,
+    dtb_addr_p: usize,
+    dtb_size: usize
+) -> ! {
+    
+}
