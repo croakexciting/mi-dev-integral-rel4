@@ -1,4 +1,5 @@
-use crate::interrupt::handler::handleInterruptEntry;
+use crate::kernel::fastpath::fastpath_reply_recv;
+use crate::{interrupt::handler::handleInterruptEntry, kernel::fastpath::fastpath_call};
 use crate::syscall::slowpath;
 use core::arch::asm;
 

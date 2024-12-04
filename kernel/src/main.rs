@@ -15,6 +15,8 @@
 #![feature(stmt_expr_attributes)]
 
 extern crate core;
+use boot::interface::rust_try_init_kernel;
+use interrupt::intStateIRQNodeToR;
 use sel4_common::arch::shutdown;
 mod config;
 // mod console;
@@ -33,6 +35,9 @@ mod ffi;
 mod interfaces_impl;
 
 pub use sel4_common::{BIT, IS_ALIGNED, MASK, ROUND_DOWN, ROUND_UP};
+use sel4_cspace::interface::cte_t;
+use sel4_task::{activateThread, schedule};
+use structures::p_region_t;
 
 #[no_mangle]
 pub extern "C" fn halt() {
@@ -52,15 +57,44 @@ pub extern "C" fn strnlen(str: *const u8, _max_len: usize) -> usize {
     }
 }
 
+#[link_section = ".boot.text"]
+static avail_p_regs: [p_region_t; 1] = [
+    p_region_t {start: 0x80200000, end: 0x17ff00000}
+];
+
+#[repr(align(128))]
+struct intStateIRQNode([u8; core::mem::size_of::<cte_t>() * 4]);
+
+impl intStateIRQNode {
+    const fn new() -> Self {
+        let buf = [0; core::mem::size_of::<cte_t>() * 4];
+        Self(buf)
+    }
+}
+
+static irqnode: intStateIRQNode = intStateIRQNode::new();
+
 #[no_mangle]
 #[link_section = ".boot.text"]
 pub fn init_kernel(
     ui_p_reg_start: usize,
     ui_p_reg_end: usize,
-    pv_offset: usize,
+    pv_offset: isize,
     v_entry: usize,
     dtb_addr_p: usize,
     dtb_size: usize
-) -> ! {
-    
+) {
+    boot::interface::pRegsToR(
+        &avail_p_regs as *const p_region_t as *const usize, 
+        core::mem::size_of_val(&avail_p_regs)
+    );
+    intStateIRQNodeToR(irqnode.0.as_ptr() as *mut usize);
+    let result = rust_try_init_kernel(ui_p_reg_start, ui_p_reg_end, pv_offset, v_entry, dtb_addr_p, dtb_size);
+    if !result {
+        log::error!("ERROR: kernel init failed");
+        panic!()
+    }
+
+    schedule();
+    activateThread();
 }
