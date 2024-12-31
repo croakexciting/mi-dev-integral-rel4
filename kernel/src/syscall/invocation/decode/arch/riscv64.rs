@@ -16,7 +16,7 @@ use sel4_common::structures::{exception_t, seL4_IPCBuffer};
 use sel4_common::structures_gen::{cap, cap_page_table_cap, cap_tag};
 use sel4_common::structures_gen::{lookup_fault_invalid_root, lookup_fault_missing_capability};
 use sel4_common::utils::{convert_to_mut_type_ref, pageBitsForSize};
-use sel4_common::{BIT, MASK};
+use sel4_common::{println, BIT, MASK};
 use sel4_cspace::interface::cte_t;
 use sel4_task::{get_currenct_thread, set_thread_state, ThreadState};
 use sel4_vspace::{
@@ -73,7 +73,7 @@ fn decode_page_table_invocation(
 
         MessageLabel::RISCVPageTableMap => decode_page_table_map(length, cte, buffer),
         _ => {
-            debug!("RISCVPageTable: Illegal Operation");
+            println!("RISCVPageTable: Illegal Operation");
             unsafe {
                 current_syscall_error._type = seL4_IllegalOperation;
             }
@@ -103,7 +103,7 @@ fn decode_frame_invocation(
             )
         }
         _ => {
-            debug!("invalid operation label:{:?}", label);
+            println!("invalid operation label:{:?}", label);
             unsafe {
                 current_syscall_error._type = seL4_IllegalOperation;
             }
@@ -117,6 +117,7 @@ fn decode_asid_control(label: MessageLabel, length: usize, buffer: &seL4_IPCBuff
         unsafe {
             current_syscall_error._type = seL4_IllegalOperation;
         }
+        println!("lxy debug22 =====================");
         return exception_t::EXCEPTION_SYSCALL_ERROR;
     }
 
@@ -126,6 +127,7 @@ fn decode_asid_control(label: MessageLabel, length: usize, buffer: &seL4_IPCBuff
         unsafe {
             current_syscall_error._type = seL4_TruncatedMessage;
         }
+        println!("lxy debug23 =====================");
         return exception_t::EXCEPTION_SYSCALL_ERROR;
     }
     let index = get_syscall_arg(0, buffer);
@@ -143,6 +145,7 @@ fn decode_asid_control(label: MessageLabel, length: usize, buffer: &seL4_IPCBuff
         unsafe {
             current_syscall_error._type = seL4_DeleteFirst;
         }
+        println!("lxy debug24 =====================");
         return exception_t::EXCEPTION_SYSCALL_ERROR;
     }
 
@@ -155,6 +158,7 @@ fn decode_asid_control(label: MessageLabel, length: usize, buffer: &seL4_IPCBuff
             current_syscall_error._type = seL4_InvalidCapability;
             current_syscall_error.invalidCapNumber = 1;
         }
+        println!("lxy debug25 =====================");
         return exception_t::EXCEPTION_SYSCALL_ERROR;
     }
 
@@ -178,6 +182,8 @@ fn decode_asid_control(label: MessageLabel, length: usize, buffer: &seL4_IPCBuff
         unsafe {
             current_syscall_error._type = seL4_DeleteFirst;
         }
+        println!("lxy debug26 =====================");
+
         return exception_t::EXCEPTION_SYSCALL_ERROR;
     }
     set_thread_state(get_currenct_thread(), ThreadState::ThreadStateRestart);

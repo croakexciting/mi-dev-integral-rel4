@@ -31,9 +31,9 @@ pub fn init_cpu() {
     }
     #[cfg(not(feature = "ENABLE_SMP"))]
     {
-        set_sie_mask(BIT!(SIE_SEIE) | BIT!(SIE_STIE));
+        // set_sie_mask(BIT!(SIE_SEIE) | BIT!(SIE_STIE));
     }
-    set_timer(get_time() + RESET_CYCLES);
+    // set_timer(get_time() + RESET_CYCLES);
 }
 
 pub fn init_freemem(ui_reg: region_t, dtb_p_reg: p_region_t) -> bool {
@@ -49,7 +49,7 @@ pub fn init_freemem(ui_reg: region_t, dtb_p_reg: p_region_t) -> bool {
 
     if dtb_p_reg.start != 0 {
         if index >= NUM_RESERVED_REGIONS {
-            debug!("ERROR: no slot to add DTB to reserved regions\n");
+            log::error!("ERROR: no slot to add DTB to reserved regions\n");
             return false;
         }
         unsafe {
@@ -58,7 +58,7 @@ pub fn init_freemem(ui_reg: region_t, dtb_p_reg: p_region_t) -> bool {
         }
     }
     if index >= NUM_RESERVED_REGIONS {
-        debug!("ERROR: no slot to add user image to reserved regions\n");
+        log::error!("ERROR: no slot to add user image to reserved regions\n");
         return false;
     }
     unsafe {

@@ -47,9 +47,13 @@ pub fn decode_invocation(
     call: bool,
     buffer: &seL4_IPCBuffer,
 ) -> exception_t {
+    use log::{error, info};
+    use sel4_common::println;
+
+    // println!("lxy debug ============== {:?}", capability.clone().splay());
     match capability.clone().splay() {
         cap_Splayed::null_cap(_) | cap_Splayed::zombie_cap(_) => {
-            debug!(
+            println!(
                 "Attempted to invoke a null or zombie cap {:#x}, {:?}.",
                 cap_index,
                 capability.get_tag()
@@ -63,7 +67,7 @@ pub fn decode_invocation(
 
         cap_Splayed::endpoint_cap(data) => {
             if unlikely(data.get_capCanSend() == 0) {
-                debug!(
+                println!(
                     "Attempted to invoke a read-only endpoint cap {}.",
                     cap_index
                 );
@@ -87,7 +91,7 @@ pub fn decode_invocation(
 
         cap_Splayed::notification_cap(data) => {
             if unlikely(data.get_capNtfnCanSend() == 0) {
-                debug!(
+                println!(
                     "Attempted to invoke a read-only notification cap {}.",
                     cap_index
                 );
@@ -112,7 +116,7 @@ pub fn decode_invocation(
             #[cfg(not(feature = "KERNEL_MCS"))]
             {
                 if unlikely(data.get_capReplyMaster() != 0) {
-                    debug!("Attempted to invoke an invalid reply cap {}.", cap_index);
+                    println!("Attempted to invoke an invalid reply cap {}.", cap_index);
                     unsafe {
                         current_syscall_error._type = seL4_InvalidCapability;
                         current_syscall_error.invalidCapNumber = 0;
@@ -129,20 +133,33 @@ pub fn decode_invocation(
             }
         }
         cap_Splayed::thread_cap(data) => {
+            println!("lxy ddbug12 ====================");
             decode_tcb_invocation(label, length, &data, slot, call, buffer)
         }
-        cap_Splayed::domain_cap(_) => decode_domain_invocation(label, length, buffer),
-        cap_Splayed::cnode_cap(data) => decode_cnode_invocation(label, length, &data, buffer),
+        cap_Splayed::domain_cap(_) =>  {
+            println!("lxy ddbug13 ====================");
+            decode_domain_invocation(label, length, buffer)
+        }
+        cap_Splayed::cnode_cap(data) => {
+            println!("lxy ddbug14 ====================");
+            decode_cnode_invocation(label, length, &data, buffer)
+        }
         cap_Splayed::untyped_cap(data) => {
+            println!("lxy ddbug15 ====================");
             decode_untyed_invocation(label, length, slot, &data, buffer)
         }
         cap_Splayed::irq_control_cap(_) => {
+            println!("lxy ddbug16 ====================");
             decode_irq_control_invocation(label, length, slot, buffer)
         }
         cap_Splayed::irq_handler_cap(data) => {
+            println!("lxy ddbug17 ====================");
             decode_irq_handler_invocation(label, data.get_capIRQ() as usize)
         }
-        _ => decode_mmu_invocation(label, length, slot, call, buffer),
+        _ => {
+            println!("lxy ddbug18 ====================");
+            decode_mmu_invocation(label, length, slot, call, buffer)
+        }
     }
 }
 #[cfg(feature = "KERNEL_MCS")]

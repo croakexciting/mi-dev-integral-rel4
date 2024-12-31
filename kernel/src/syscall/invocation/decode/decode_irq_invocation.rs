@@ -1,4 +1,5 @@
 use log::debug;
+use sel4_common::println;
 use sel4_common::structures_gen::{cap, cap_Splayed, cap_tag};
 use sel4_common::{
     arch::MessageLabel,
@@ -43,12 +44,12 @@ pub fn decode_irq_control_invocation(
             unsafe {
                 current_syscall_error._type = seL4_RevokeFirst;
             }
-            debug!("Rejecting request for IRQ {}. Already active.", irq);
+            println!("Rejecting request for IRQ {}. Already active.", irq);
             return exception_t::EXCEPTION_SYSCALL_ERROR;
         }
         let lu_ret = lookupSlotForCNodeOp(false, &cnode_cap, index, depth);
         if lu_ret.status != exception_t::EXCEPTION_NONE {
-            debug!("Target slot for new IRQ Handler cap invalid: IRQ {}.", irq);
+            println!("Target slot for new IRQ Handler cap invalid: IRQ {}.", irq);
             return lu_ret.status;
         }
         let dest_slot = convert_to_mut_type_ref::<cte_t>(lu_ret.slot as usize);
@@ -56,7 +57,7 @@ pub fn decode_irq_control_invocation(
             unsafe {
                 current_syscall_error._type = seL4_DeleteFirst;
             }
-            debug!("Target slot for new IRQ Handler cap not empty");
+            println!("Target slot for new IRQ Handler cap not empty");
             return exception_t::EXCEPTION_SYSCALL_ERROR;
         }
         set_thread_state(get_currenct_thread(), ThreadState::ThreadStateRestart);
@@ -108,7 +109,7 @@ pub fn decode_irq_handler_invocation(label: MessageLabel, irq: usize) -> excepti
             exception_t::EXCEPTION_NONE
         }
         _ => {
-            debug!("IRQHandler: Illegal operation.");
+            println!("IRQHandler: Illegal operation.");
             unsafe {
                 current_syscall_error._type = seL4_IllegalOperation;
             }

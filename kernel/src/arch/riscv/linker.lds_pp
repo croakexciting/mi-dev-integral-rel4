@@ -294,6 +294,7 @@ SECTIONS
     {
         *(._idle_thread)
     }
+    . = ALIGN(4K);
     .bss . (NOLOAD): AT(ADDR(.bss) - KERNEL_OFFSET)
     {
         *(.bss)

@@ -17,7 +17,7 @@
 extern crate core;
 use boot::interface::rust_try_init_kernel;
 use interrupt::intStateIRQNodeToR;
-use sel4_common::arch::shutdown;
+use sel4_common::{arch::shutdown, println};
 mod config;
 // mod console;
 mod arch;
@@ -84,9 +84,10 @@ pub fn init_kernel(
     dtb_addr_p: usize,
     dtb_size: usize
 ) {
+    log::set_max_level(log::LevelFilter::Trace);
     boot::interface::pRegsToR(
         &avail_p_regs as *const p_region_t as *const usize, 
-        core::mem::size_of_val(&avail_p_regs)
+        core::mem::size_of_val(&avail_p_regs)/core::mem::size_of::<p_region_t>()
     );
     intStateIRQNodeToR(irqnode.0.as_ptr() as *mut usize);
     let result = rust_try_init_kernel(ui_p_reg_start, ui_p_reg_end, pv_offset, v_entry, dtb_addr_p, dtb_size);
@@ -96,5 +97,6 @@ pub fn init_kernel(
     }
 
     schedule();
+    println!("lxy debug3333");
     activateThread();
 }

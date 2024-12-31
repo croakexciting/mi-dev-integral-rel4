@@ -52,6 +52,7 @@ pub fn try_init_kernel(
 
     let dtb_p_reg = init_dtb(dtb_size, dtb_phys_addr, &mut extra_bi_size);
     if dtb_p_reg.is_none() {
+        log::error!("kernel init failed at init dtb");
         return false;
     }
 
@@ -63,7 +64,7 @@ pub fn try_init_kernel(
     };
 
     if it_v_reg.end >= USER_TOP {
-        debug!(
+        log::error!(
             "ERROR: userland image virt [{}..{}]
         exceeds USER_TOP ({})\n",
             it_v_reg.start, it_v_reg.end, USER_TOP
@@ -72,7 +73,7 @@ pub fn try_init_kernel(
     }
 
     if !init_freemem(ui_reg.clone(), dtb_p_reg.unwrap().clone()) {
-        debug!("ERROR: free memory management initialization failed\n");
+        log::error!("ERROR: free memory management initialization failed\n");
         return false;
     }
 

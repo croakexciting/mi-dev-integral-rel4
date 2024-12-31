@@ -26,12 +26,15 @@ use crate::syscall::{handle_fault, lookup_extra_caps_with_buf};
 #[no_mangle]
 #[cfg(not(feature = "KERNEL_MCS"))]
 pub fn handleInvocation(isCall: bool, isBlocking: bool) -> exception_t {
+    use sel4_common::println;
+
     let thread = get_currenct_thread();
+    println!("lxy debug100 ================== {}", thread.tcbArch.get_register(ArchReg::MsgInfo));
     let info = seL4_MessageInfo::from_word_security(thread.tcbArch.get_register(ArchReg::MsgInfo));
     let cptr = thread.tcbArch.get_register(ArchReg::Cap);
     let lu_ret = thread.lookup_slot(cptr);
     if unlikely(lu_ret.status != exception_t::EXCEPTION_NONE) {
-        debug!("Invocation of invalid cap {:#x}.", cptr);
+        println!("Invocation of invalid cap {:#x}.", cptr);
         unsafe {
             current_fault = seL4_Fault_CapFault::new(cptr as u64, 0).unsplay();
         }
@@ -43,7 +46,7 @@ pub fn handleInvocation(isCall: bool, isBlocking: bool) -> exception_t {
     let buffer = thread.lookup_ipc_buffer(false);
     let status = lookup_extra_caps_with_buf(thread, buffer);
     if unlikely(status != exception_t::EXCEPTION_NONE) {
-        debug!("Lookup of extra caps failed.");
+        println!("Lookup of extra caps failed.");
         if isBlocking {
             // handleFault(thread);
             handle_fault(thread);
@@ -57,6 +60,7 @@ pub fn handleInvocation(isCall: bool, isBlocking: bool) -> exception_t {
     }
 
     let capability = unsafe { (*(lu_ret.slot)).capability.clone() };
+    println!("lxy debug10 {:?}", info.get_message_label());
     let status = decode_invocation(
         info.get_message_label(),
         length,
@@ -67,6 +71,8 @@ pub fn handleInvocation(isCall: bool, isBlocking: bool) -> exception_t {
         isCall,
         buffer.unwrap(),
     );
+    println!("lxy debug5 {:?}", status);
+
     if status == exception_t::EXCEPTION_PREEMTED {
         return status;
     }
@@ -84,6 +90,7 @@ pub fn handleInvocation(isCall: bool, isBlocking: bool) -> exception_t {
         }
         set_thread_state(thread, ThreadState::ThreadStateRunning);
     }
+    println!("lxy debug4");
     return exception_t::EXCEPTION_NONE;
 }
 #[no_mangle]

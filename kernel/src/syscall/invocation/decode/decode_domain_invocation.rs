@@ -1,6 +1,7 @@
 use core::intrinsics::unlikely;
 
 use log::debug;
+use sel4_common::println;
 use sel4_common::structures_gen::{cap, cap_tag};
 use sel4_common::{
     arch::MessageLabel,
@@ -27,7 +28,7 @@ pub fn decode_domain_invocation(
         return exception_t::EXCEPTION_SYSCALL_ERROR;
     }
     if length == 0 {
-        debug!("Domain Configure: Truncated message.");
+        println!("Domain Configure: Truncated message.");
         unsafe {
             current_syscall_error._type = seL4_TruncatedMessage;
         }
@@ -35,7 +36,7 @@ pub fn decode_domain_invocation(
     }
     let domain = get_syscall_arg(0, buffer);
     if domain >= 1 {
-        debug!("Domain Configure: invalid domain ({} >= 1).", domain);
+        println!("Domain Configure: invalid domain ({} >= 1).", domain);
         unsafe {
             current_syscall_error._type = seL4_InvalidArgument;
             current_syscall_error.invalidArgumentNumber = 0;
@@ -43,7 +44,7 @@ pub fn decode_domain_invocation(
         return exception_t::EXCEPTION_SYSCALL_ERROR;
     }
     if get_extra_cap_by_index(0).is_none() {
-        debug!("Domain Configure: Truncated message.");
+        println!("Domain Configure: Truncated message.");
         unsafe {
             current_syscall_error._type = seL4_TruncatedMessage;
         }
@@ -51,7 +52,7 @@ pub fn decode_domain_invocation(
     }
     let thread_cap = cap::cap_thread_cap(&get_extra_cap_by_index(0).unwrap().capability);
     if unlikely(thread_cap.clone().unsplay().get_tag() != cap_tag::cap_thread_cap) {
-        debug!("Domain Configure: thread cap required.");
+        println!("Domain Configure: thread cap required.");
         unsafe {
             current_syscall_error._type = seL4_InvalidArgument;
             current_syscall_error.invalidArgumentNumber = 1;

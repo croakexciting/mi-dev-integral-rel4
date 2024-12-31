@@ -31,6 +31,7 @@ pub fn rust_init_freemem(
     if !check_available_memory(n_available, available)
         || !check_reserved_memory(n_reserved, reserved.clone())
     {
+        log::error!("lxy debug12345");
         return false;
     }
 
@@ -105,7 +106,7 @@ pub fn rust_init_freemem(
             a += 1;
         }
         if !is_reg_empty(&ndks_boot.freemem[ndks_boot.freemem.len() - 1]) {
-            debug!(
+            log::error!(
                 "ERROR: insufficient MAX_NUM_FREEMEM_REG {}\n",
                 MAX_NUM_FREEMEM_REG
             );
@@ -117,7 +118,7 @@ pub fn rust_init_freemem(
 
 fn check_available_memory(n_available: usize, available: usize) -> bool {
     if n_available == 0 {
-        debug!("ERROR: no memory regions available");
+        log::error!("ERROR: no memory regions available");
         return false;
     }
     debug!("available phys memory regions: {:#x}", n_available);
@@ -130,16 +131,16 @@ fn check_available_memory(n_available: usize, available: usize) -> bool {
         debug!(" [{:#x}..{:#x}]", r.start, r.end);
 
         if r.start > r.end {
-            debug!("ERROR: memory region {} has start > end", i);
+            log::error!("ERROR: memory region {} has start > end", i);
             return false;
         }
 
         if r.start == r.end {
-            debug!("ERROR: memory region {} empty", i);
+            log::error!("ERROR: memory region {} empty", i);
             return false;
         }
         if i > 0 && r.start < last.end {
-            debug!("ERROR: memory region {} in wrong order", i);
+            log::error!("ERROR: memory region {} in wrong order", i);
         }
         last = r.clone();
     }
@@ -154,12 +155,12 @@ fn check_reserved_memory(n_reserved: usize, reserved: [region_t; NUM_RESERVED_RE
         r = reserved[i].clone();
         debug!("  [{:#x}..{:#x}]", r.start, r.end);
         if r.start > r.end {
-            debug!("ERROR: reserved region {} has start > end\n", i);
+            log::error!("ERROR: reserved region {} has start > end\n", i);
             return false;
         }
 
         if i > 0 && r.start < last.end {
-            debug!("ERROR: reserved region {} in wrong order", i);
+            log::error!("ERROR: reserved region {} in wrong order", i);
             return false;
         }
         last = r.clone();
@@ -184,7 +185,7 @@ fn insert_region(reg: region_t) -> bool {
             i += 1;
         }
     }
-    debug!(
+    log::error!(
         "no free memory slot left for [{}..{}],
      consider increasing MAX_NUM_FREEMEM_REG (%{})\n",
         reg.start, reg.end, MAX_NUM_FREEMEM_REG
@@ -214,7 +215,7 @@ pub unsafe fn reserve_region(reg: p_region_t) -> bool {
         }
         if ndks_boot.reserved[i].start > reg.end {
             if ndks_boot.resv_count + 1 >= MAX_NUM_RESV_REG {
-                debug!("Can't mark region {:#x}-{:#x} as reserved, try increasing MAX_NUM_RESV_REG (currently {})\n",reg.start,reg.end,MAX_NUM_RESV_REG);
+                log::error!("Can't mark region {:#x}-{:#x} as reserved, try increasing MAX_NUM_RESV_REG (currently {})\n",reg.start,reg.end,MAX_NUM_RESV_REG);
                 return false;
             }
             let mut j = ndks_boot.resv_count;
@@ -229,7 +230,7 @@ pub unsafe fn reserve_region(reg: p_region_t) -> bool {
         i += 1;
     }
     if i + 1 == MAX_NUM_RESV_REG {
-        debug!("Can't mark region 0x{}-0x{} as reserved, try increasing MAX_NUM_RESV_REG (currently {})\n",reg.start,reg.end,MAX_NUM_RESV_REG);
+        log::error!("Can't mark region 0x{}-0x{} as reserved, try increasing MAX_NUM_RESV_REG (currently {})\n",reg.start,reg.end,MAX_NUM_RESV_REG);
         return false;
     }
     ndks_boot.reserved[i] = reg;
