@@ -16,7 +16,7 @@ use sel4_common::sel4_config::{
     L2_BITMAP_SIZE, NUM_READY_QUEUES, TCB_OFFSET,
 };
 use sel4_common::utils::{convert_to_mut_type_ref, convert_to_mut_type_ref_unsafe};
-use sel4_common::{BIT, MASK};
+use sel4_common::{println, BIT, MASK};
 
 use crate::deps::ksIdleThreadTCB;
 #[cfg(feature = "KERNEL_MCS")]
@@ -132,14 +132,17 @@ pub static mut ksReprogram: bool = false;
 pub static mut ksIdleSC: usize = 0;
 
 #[no_mangle]
+#[link_section = ".bss.aligned"]
 pub static mut ksReadyQueues: [tcb_queue_t; NUM_READY_QUEUES] =
     [tcb_queue_t { head: 0, tail: 0 }; NUM_READY_QUEUES];
 
 #[no_mangle]
+#[link_section = ".bss.aligned"]
 pub static mut ksReadyQueuesL2Bitmap: [[usize; L2_BITMAP_SIZE]; CONFIG_NUM_DOMAINS] =
     [[0; L2_BITMAP_SIZE]; CONFIG_NUM_DOMAINS];
 
 #[no_mangle]
+#[link_section = ".bss.aligned"]
 pub static mut ksReadyQueuesL1Bitmap: [usize; CONFIG_NUM_DOMAINS] = [0; CONFIG_NUM_DOMAINS];
 
 #[no_mangle]
@@ -912,7 +915,7 @@ pub fn create_idle_thread() {
 pub fn idle_thread() {
     unsafe {
         loop {
-            // debug!("hello idle_thread");
+            // println!("hello idle_thread");
             asm!("wfi");
         }
     }

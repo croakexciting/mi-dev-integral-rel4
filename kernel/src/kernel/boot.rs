@@ -11,17 +11,17 @@ use sel4_cspace::interface::cte_t;
 use crate::structures::{extra_caps_t, syscall_error_t};
 
 #[no_mangle]
-// #[link_section = ".boot.bss"]
+#[link_section = ".bss.aligned"]
 pub static mut current_lookup_fault: lookup_fault = lookup_fault(Bitfield { arr: [0; 2] });
 
 #[no_mangle]
-// #[link_section = ".boot.bss"]
+#[link_section = ".bss.aligned"]
 pub static mut current_fault: seL4_Fault = seL4_Fault {
     0: Bitfield { arr: [0; 2usize] },
 };
 
 #[no_mangle]
-// #[link_section = ".boot.bss"]
+#[link_section = ".bss.aligned"]
 pub static mut current_syscall_error: syscall_error_t = syscall_error_t {
     invalidArgumentNumber: 0,
     invalidCapNumber: 0,
@@ -33,7 +33,7 @@ pub static mut current_syscall_error: syscall_error_t = syscall_error_t {
 };
 
 #[no_mangle]
-// #[link_section = ".boot.bss"]
+#[link_section = ".bss.aligned"]
 pub static mut current_extra_caps: extra_caps_t = extra_caps_t {
     excaprefs: [0; seL4_MsgMaxExtraCaps],
 };

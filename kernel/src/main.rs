@@ -57,7 +57,7 @@ pub extern "C" fn strnlen(str: *const u8, _max_len: usize) -> usize {
     }
 }
 
-#[link_section = ".boot.text"]
+#[link_section = ".boot.bss"]
 static avail_p_regs: [p_region_t; 1] = [
     p_region_t {start: 0x80200000, end: 0x17ff00000}
 ];
@@ -75,7 +75,7 @@ impl intStateIRQNode {
 static irqnode: intStateIRQNode = intStateIRQNode::new();
 
 #[no_mangle]
-#[link_section = ".boot.text"]
+// #[link_section = ".boot.text"]
 pub fn init_kernel(
     ui_p_reg_start: usize,
     ui_p_reg_end: usize,

@@ -20,6 +20,7 @@ use crate::arch::read_sip;
 use crate::ffi::{ipi_clear_irq, ipi_get_irq};
 
 #[no_mangle]
+#[link_section = ".bss.aligned"]
 pub static mut intStateIRQTable: [usize; maxIRQ + 1] = [0; maxIRQ + 1];
 
 pub static mut intStateIRQNode: pptr_t = 0;
