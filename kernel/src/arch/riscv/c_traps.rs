@@ -151,3 +151,13 @@ pub fn c_handle_syscall(_cptr: usize, _msgInfo: usize, syscall: usize) {
     slowpath(syscall);
     // debug!("c_handle_syscall complete");
 }
+
+#[no_mangle]
+pub fn c_handle_fastpath_call(cptr: usize, msgInfo: usize) {
+    fastpath_call(cptr, msgInfo);
+}
+
+#[no_mangle]
+pub fn c_handle_fastpath_reply_recv(cptr: usize, msgInfo: usize) {
+    fastpath_reply_recv(cptr, msgInfo);
+}

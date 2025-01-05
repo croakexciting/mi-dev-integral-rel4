@@ -118,3 +118,5 @@ pub fn try_init_kernel(
 
     true
 }
+
+pub fn init_plat() {}
