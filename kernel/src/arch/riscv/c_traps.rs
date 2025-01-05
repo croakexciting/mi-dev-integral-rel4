@@ -7,6 +7,8 @@ use crate::{
         RISCVLoadPageFault, RISCVStoreAccessFault, RISCVStorePageFault,
     },
     syscall::slowpath,
+    kernel::fastpath::fastpath_call,
+    kernel::fastpath::fastpath_reply_recv,
 };
 
 use sel4_task::*;

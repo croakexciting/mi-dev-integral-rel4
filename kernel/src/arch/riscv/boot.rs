@@ -5,7 +5,6 @@ use crate::{
         ksNumCPUs, ndks_boot, paddr_to_pptr_reg, root_server_init,
     },
     config::{BI_FRAME_SIZE_BITS, USER_TOP},
-    ffi::init_plat,
     structures::{p_region_t, seL4_SlotRegion, v_region_t},
 };
 use log::debug;

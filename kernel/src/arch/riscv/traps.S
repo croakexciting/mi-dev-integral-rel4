@@ -60,10 +60,14 @@ trap_entry:
 handle_syscall:
   addi x1, x1, 4
   sd x1, (34*(64 / 8))(t0)
-  # li t3, -1
-  # beq a7, t3, c_handle_fastpath_call
-  # li t3, -2
-  # beq a7, t3, c_handle_fastpath_reply_recv
+  li t3, -1
+  bne a7, t3, 1f
+  j c_handle_fastpath_call
+1:
+  li t3, -2
+  bne a7, t3, 2f
+  j c_handle_fastpath_reply_recv
+2:
   mv a2, a7
   j c_handle_syscall
 
